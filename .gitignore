@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+bot_autostart.vbs
+yeni_bot_autostart.vbs
+*.zip

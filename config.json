@@ -1,0 +1,62 @@
+{
+  "token": "DISCORD_TOKEN_HERE",
+  "prefix": "!",
+  "server_template": {
+    "categories": [
+      {
+        "name": "📢 ┃ BİLGİ ┃ 📢",
+        "channels": [
+          { "name": "📌・hoş-geldin",      "type": "text", "readonly": true,  "topic": "Giriş çıkış bildirimleri." },
+          { "name": "📢・duyurular",       "type": "text", "readonly": true,  "topic": "Önemli duyurular.", "kurucu_only": true },
+          { "name": "📜・kurallar",        "type": "text", "readonly": true,  "topic": "Sunucu kuralları.", "kurucu_only": true },
+          { "name": "🎫・tickets",         "type": "text", "readonly": false, "topic": "Destek talebi aç." }
+        ]
+      },
+      {
+        "name": "💬 ┃ SOHBET ┃ 💬",
+        "channels": [
+          { "name": "💭・genel-sohbet",    "type": "text", "readonly": false, "topic": "Genel sohbet." },
+          { "name": "🎮・oyun-sohbet",     "type": "text", "readonly": false, "topic": "Oyun hakkında konuş." },
+          { "name": "😂・meme",            "type": "text", "readonly": false, "topic": "Meme paylaş." },
+          { "name": "📷・foto-chat",       "type": "text", "readonly": false, "topic": "Fotoğraf paylaş." },
+          { "name": "🎵・müzik",           "type": "text", "readonly": false, "topic": "Müzik öneri ve sohbet." },
+          { "name": "💡・öneri",           "type": "text", "readonly": false, "topic": "Sunucu önerileri." },
+          { "name": "🤖・bot-commands",    "type": "text", "readonly": false, "topic": "Bot komutları." }
+        ]
+      },
+      {
+        "name": "🔊 ┃ SES ┃ 🔊",
+        "channels": [
+          { "name": "🔊 Genel #1", "type": "voice" },
+          { "name": "🔊 Genel #2", "type": "voice" },
+          { "name": "🔊 Genel #3", "type": "voice" },
+          { "name": "🔊 Genel #4", "type": "voice" },
+          { "name": "🔊 Genel #5", "type": "voice" },
+          { "name": "🎮 Oyun Odası", "type": "voice" },
+          { "name": "🎵 Müzik Odası", "type": "voice" },
+          { "name": "💤 AFK", "type": "voice" }
+        ]
+      },
+      {
+        "name": "🔧 ┃ YÖNETİM ┃ 🔧",
+        "channels": [
+          { "name": "📋・mod-log",         "type": "text", "staff_only": true, "topic": "Moderasyon logları." },
+          { "name": "💼・yetkili-sohbet",  "type": "text", "staff_only": true, "topic": "Yetkili sohbet." },
+          { "name": "🔰・deneme-mod-chat", "type": "text", "staff_only": true, "topic": "Deneme mod kanalı." }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Kurucu",     "color": "0xFFD700", "hoist": true,  "mentionable": false, "permissions": "administrator" },
+      { "name": "⚙️ Yönetici",  "color": "0xFF4500", "hoist": true,  "mentionable": true,  "permissions": "manage_guild" },
+      { "name": "🛡️ Moderatör", "color": "0x1E90FF", "hoist": true,  "mentionable": true,  "permissions": "moderator" },
+      { "name": "🔰 Deneme Mod", "color": "0x3498DB", "hoist": true,  "mentionable": true,  "permissions": "none" },
+      { "name": "🎖️ Destek",    "color": "0x27AE60", "hoist": true,  "mentionable": true,  "permissions": "none" },
+      { "name": "💎 Özel Kişi",  "color": "0xE91E63", "hoist": true,  "mentionable": true,  "permissions": "none" },
+      { "name": "🎯 Abone",      "color": "0xFF8C00", "hoist": true,  "mentionable": false, "permissions": "none" },
+      { "name": "⭐ VIP",         "color": "0x9B59B6", "hoist": true,  "mentionable": true,  "permissions": "none" },
+      { "name": "✅ Üye",         "color": "0x2ECC71", "hoist": false, "mentionable": false, "permissions": "none" },
+      { "name": "🆕 Kayıtsız",   "color": "0x95A5A6", "hoist": false, "mentionable": false, "permissions": "none" }
+    ]
+  }
+}
