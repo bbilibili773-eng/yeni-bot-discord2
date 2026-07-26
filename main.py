@@ -284,13 +284,11 @@ async def on_ready():
 
 def welcome_channel(guild):
     """hoş-geldin, welcome veya giriş-çıkış kanalını bulur."""
-    if guild.system_channel and guild.system_channel.permissions_for(guild.me).send_messages:
-        return guild.system_channel
-
     target_names = [
         "📌・hoş-geldin", "hoş-geldin", "📌・welcome", "welcome",
         "giriş-çıkış", "📌・giriş-çıkış", "giris-cikis", "giriş",
-        "📌・giriş", "giriş-çıkış-bildirimleri", "giriş-çıkış-mesajları"
+        "📌・giriş", "giriş-çıkış-bildirimleri", "giriş-çıkış-mesajları",
+        "📌・hoşgeldin", "hoşgeldin", "giris-cikis-mesajlari"
     ]
     for name in target_names:
         ch = discord.utils.get(guild.text_channels, name=name)
@@ -302,6 +300,9 @@ def welcome_channel(guild):
         if any(k in name_lower for k in ["geldin", "welcome", "giris", "giriş", "cikis", "çıkış"]):
             if ch.permissions_for(guild.me).send_messages:
                 return ch
+
+    if guild.system_channel and guild.system_channel.permissions_for(guild.me).send_messages:
+        return guild.system_channel
 
     for ch in guild.text_channels:
         if ch.permissions_for(guild.me).send_messages:
@@ -319,23 +320,32 @@ async def on_member_join(member):
 
     ch = welcome_channel(guild)
     if ch:
-        embed = discord.Embed(
-            title="🎉 Yeni Üye Katıldı!",
-            description=(
-                f"Hoş geldin {member.mention}!\n\n"
-                f"🎫 Sorun için **tickets** kanalından ticket aç."
-            ),
-            color=discord.Color.green()
-        )
-        embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-        embed.set_thumbnail(url=member.display_avatar.url)
-        embed.add_field(name="👤 Üye", value=member.mention, inline=True)
-        embed.add_field(name="📅 Hesap", value=member.created_at.strftime("%d.%m.%Y"), inline=True)
-        embed.set_footer(
-            text=f"Seninle birlikte {guild.member_count} kişi olduk! 🎊",
-            icon_url=guild.icon.url if guild.icon else None
-        )
-        await ch.send(embed=embed)
+        try:
+            embed = discord.Embed(
+                title="🎉 Yeni Üye Katıldı!",
+                description=(
+                    f"Hoş geldin {member.mention}!\n\n"
+                    f"🎫 Sorun için **tickets** kanalından ticket aç."
+                ),
+                color=discord.Color.green()
+            )
+            try: embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+            except: pass
+            try: embed.set_thumbnail(url=member.display_avatar.url)
+            except: pass
+            embed.add_field(name="👤 Üye", value=member.mention, inline=True)
+            embed.add_field(name="📅 Hesap", value=member.created_at.strftime("%d.%m.%Y"), inline=True)
+            try:
+                embed.set_footer(
+                    text=f"Seninle birlikte {guild.member_count} kişi olduk! 🎊",
+                    icon_url=guild.icon.url if guild.icon else None
+                )
+            except: pass
+            await ch.send(embed=embed)
+        except Exception as e:
+            print(f"Giriş mesajı gönderilirken hata: {e}")
+            try: await ch.send(f"🎉 Hoş geldin {member.mention}! Sunucumuza katıldığın için teşekkürler.")
+            except: pass
 
 
 @bot.event
@@ -343,20 +353,29 @@ async def on_member_remove(member):
     guild = member.guild
     ch = welcome_channel(guild)
     if ch:
-        embed = discord.Embed(
-            title="👋 Üye Ayrıldı",
-            description=f"**{member.display_name}** sunucudan ayrıldı.",
-            color=discord.Color.red()
-        )
-        embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-        embed.set_thumbnail(url=member.display_avatar.url)
-        embed.add_field(name="👤 Üye", value=str(member), inline=True)
-        embed.add_field(name="🆔 ID", value=str(member.id), inline=True)
-        embed.set_footer(
-            text=f"Şu an {guild.member_count} kişiyiz.",
-            icon_url=guild.icon.url if guild.icon else None
-        )
-        await ch.send(embed=embed)
+        try:
+            embed = discord.Embed(
+                title="👋 Üye Ayrıldı",
+                description=f"**{member.display_name}** sunucudan ayrıldı.",
+                color=discord.Color.red()
+            )
+            try: embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+            except: pass
+            try: embed.set_thumbnail(url=member.display_avatar.url)
+            except: pass
+            embed.add_field(name="👤 Üye", value=str(member), inline=True)
+            embed.add_field(name="🆔 ID", value=str(member.id), inline=True)
+            try:
+                embed.set_footer(
+                    text=f"Şu an {guild.member_count} kişiyiz.",
+                    icon_url=guild.icon.url if guild.icon else None
+                )
+            except: pass
+            await ch.send(embed=embed)
+        except Exception as e:
+            print(f"Çıkış mesajı gönderilirken hata: {e}")
+            try: await ch.send(f"👋 **{member.display_name}** sunucudan ayrıldı.")
+            except: pass
 
 
 @bot.event
