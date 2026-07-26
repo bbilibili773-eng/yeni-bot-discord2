@@ -283,14 +283,28 @@ async def on_ready():
 
 
 def welcome_channel(guild):
-    """hoş-geldin veya welcome adlı kanalı bulur."""
-    for name in ["📌・hoş-geldin", "hoş-geldin", "📌・welcome", "welcome"]:
+    """hoş-geldin, welcome veya giriş-çıkış kanalını bulur."""
+    if guild.system_channel and guild.system_channel.permissions_for(guild.me).send_messages:
+        return guild.system_channel
+
+    target_names = [
+        "📌・hoş-geldin", "hoş-geldin", "📌・welcome", "welcome",
+        "giriş-çıkış", "📌・giriş-çıkış", "giris-cikis", "giriş",
+        "📌・giriş", "giriş-çıkış-bildirimleri", "giriş-çıkış-mesajları"
+    ]
+    for name in target_names:
         ch = discord.utils.get(guild.text_channels, name=name)
-        if ch:
+        if ch and ch.permissions_for(guild.me).send_messages:
             return ch
-    # bulamazsa içinde 'geldin' veya 'welcome' geçen ilk kanalı dön
+
     for ch in guild.text_channels:
-        if "geldin" in ch.name or "welcome" in ch.name:
+        name_lower = ch.name.lower()
+        if any(k in name_lower for k in ["geldin", "welcome", "giris", "giriş", "cikis", "çıkış"]):
+            if ch.permissions_for(guild.me).send_messages:
+                return ch
+
+    for ch in guild.text_channels:
+        if ch.permissions_for(guild.me).send_messages:
             return ch
     return None
 
