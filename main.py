@@ -150,6 +150,9 @@ class TicketView(discord.ui.View):
 
     @discord.ui.button(label="🎫 Ticket Aç", style=discord.ButtonStyle.green, custom_id="ticket_ac")
     async def ac(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try: await interaction.response.defer(ephemeral=True)
+        except: pass
+
         user  = interaction.user
         guild = interaction.guild
         now   = datetime.datetime.now()
@@ -157,20 +160,25 @@ class TicketView(discord.ui.View):
         spam = [t for t in ticket_spam.get(user.id, []) if (now - t).seconds < 300]
         ticket_spam[user.id] = spam
         if len(spam) >= 2:
-            await interaction.response.send_message("❌ 5 dakikada en fazla 2 ticket açabilirsin!", ephemeral=True)
+            await interaction.followup.send("❌ 5 dakikada en fazla 2 ticket açabilirsin!", ephemeral=True)
             return
 
         if user.id in acik_ticketlar:
             ch = guild.get_channel(acik_ticketlar[user.id])
             if ch:
-                await interaction.response.send_message(f"❌ Zaten açık ticketin var: {ch.mention}", ephemeral=True)
+                await interaction.followup.send(f"❌ Zaten açık ticketin var: {ch.mention}", ephemeral=True)
                 return
+            else:
+                del acik_ticketlar[user.id]
 
         ticket_spam[user.id].append(now)
 
         cat = discord.utils.get(guild.categories, name="🎫 ┃ TİCKETLAR")
         if not cat:
-            cat = await guild.create_category("🎫 ┃ TİCKETLAR")
+            try: cat = await guild.create_category("🎫 ┃ TİCKETLAR")
+            except Exception as e:
+                await interaction.followup.send(f"❌ Kategori oluşturulurken hata: {e}", ephemeral=True)
+                return
 
         mod_r = discord.utils.get(guild.roles, name="🛡️ Moderatör")
         yon_r = discord.utils.get(guild.roles, name="⚙️ Yönetici")
@@ -178,25 +186,31 @@ class TicketView(discord.ui.View):
 
         ow = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True)
+            user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, read_message_history=True)
         }
+        if guild.me:
+            ow[guild.me] = discord.PermissionOverwrite(view_channel=True, send_messages=True, manage_channels=True)
         for sr in [mod_r, yon_r, kur_r]:
-            if sr: ow[sr] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
+            if sr: ow[sr] = discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True)
 
-        ch = await guild.create_text_channel(
-            f"ticket-{user.name}", category=cat, overwrites=ow,
-            topic=f"{user} tarafından açıldı."
-        )
-        acik_ticketlar[user.id] = ch.id
+        try:
+            channel_name = f"ticket-{user.name}".lower().replace(" ", "-")
+            ch = await guild.create_text_channel(
+                channel_name, category=cat, overwrites=ow,
+                topic=f"{user} tarafından açıldı."
+            )
+            acik_ticketlar[user.id] = ch.id
 
-        embed = discord.Embed(
-            title="🎫 Destek Talebi",
-            description=f"Merhaba {user.mention}!\n\nSorununuzu yazın, yetkili ekip yanıt verecek.\n\nKapatmak için butona basın.",
-            color=discord.Color.blurple()
-        )
-        embed.set_footer(text=f"Ticket ID: {ch.id}")
-        await ch.send(embed=embed, view=TicketKapatView())
-        await interaction.response.send_message(f"✅ Ticketin açıldı: {ch.mention}", ephemeral=True)
+            embed = discord.Embed(
+                title="🎫 Destek Talebi",
+                description=f"Merhaba {user.mention}!\n\nSorununuzu yazın, yetkili ekip en kısa sürede yanıt verecektir.\n\nKapatmak için aşağıdaki **Kapat** butonuna basın.",
+                color=discord.Color.blurple()
+            )
+            embed.set_footer(text=f"Ticket ID: {ch.id}")
+            await ch.send(content=f"{user.mention}", embed=embed, view=TicketKapatView())
+            await interaction.followup.send(f"✅ Ticketin açıldı: {ch.mention}", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Ticket kanalı oluşturulamadı: {e}", ephemeral=True)
 
 
 class TicketKapatView(discord.ui.View):
@@ -205,18 +219,22 @@ class TicketKapatView(discord.ui.View):
 
     @discord.ui.button(label="🔒 Kapat", style=discord.ButtonStyle.red, custom_id="ticket_kapat")
     async def kapat(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try: await interaction.response.defer()
+        except: pass
         ch = interaction.channel
         for uid, cid in list(acik_ticketlar.items()):
             if cid == ch.id:
                 del acik_ticketlar[uid]; break
         embed = discord.Embed(
             title="🔒 Kapatılıyor",
-            description=f"{interaction.user.mention} kapattı. 5 saniye sonra silinecek.",
+            description=f"{interaction.user.mention} tarafından kapatıldı. 5 saniye sonra silinecek.",
             color=discord.Color.red()
         )
-        await interaction.response.send_message(embed=embed)
+        try: await interaction.followup.send(embed=embed)
+        except: pass
         await asyncio.sleep(5)
-        await ch.delete()
+        try: await ch.delete()
+        except: pass
 
 
 # ── ABONE SS ONAY ─────────────────────────────────────────────────────────────
